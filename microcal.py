@@ -8,10 +8,8 @@ class _commands:
     GET_BATTERY_VOLTAGE = 0x0E
     GET_DATE = 0x15
 
-def do_command(self, serial, command):
-    serial.write(command)
-
-
+    SET_ACTUAL_OUTPUT = 0x80
+    SET_OUTPUT_VALUE = 0x81
 
 class Microcal:
     _device_path = ""
@@ -66,8 +64,9 @@ class Microcal:
         Data4 = int.from_bytes(self._serial_interface.read(1), 'big')
         if self._debug:
             print(f"RX:{Data4}")
-        Tx_Checksum = (Data1 + Data2 + Data3 + Data4) & (0x7F)
+        Tx_Checksum = (parameters[0] + parameters[1] + parameters[2] + parameters[3]) & (0x7F)
         if self._debug:
+            print(f"TX_Checksum:{Tx_Checksum}")
             print(f"TX:{Tx_Checksum}")
         self._serial_interface.write(Tx_Checksum.to_bytes(1, byteorder='big'))
         Rx_Checksum = int.from_bytes(self._serial_interface.read(1), 'big')
@@ -104,12 +103,30 @@ class Microcal:
         INPUT = (INPUT_HH << 24 ) | (INPUT_H << 16 ) | (INPUT_L << 8 ) | INPUT_LL
         return INPUT
     
+    def set_output(self, inp : int):
+        INPUTHH = (inp >> 24 ) & 0xFF
+        INPUTH  = (inp >> 16 ) & 0xFF
+        INPUTL  = (inp >> 8 )  & 0xFF
+        INPUTLL = inp & 0xFF
+        self._do_command(_commands.SET_OUTPUT_VALUE, [INPUTHH,INPUTH,INPUTL,INPUTLL])
+
+    def set_output_type(self, inp : int):
+        IO_TYPE = (inp >> 24 ) & 0xFF
+        IO_SUBTYPE  = (inp >> 16 ) & 0xFF
+        IO_FLAG_IO_H  = (inp >> 8 )  & 0xFF
+        IO_FLAG_IO_L = inp & 0xFF
+        self._do_command(_commands.SET_ACTUAL_OUTPUT, [IO_TYPE,IO_SUBTYPE,IO_FLAG_IO_H,IO_FLAG_IO_L])
+    
 
 
 
 cal = Microcal("/dev/tty.usbserial-140", 1, 9600, debug=False)
 print(cal.get_battery_voltage())
 print(cal.get_date())
+i = 0
+#cal.set_output(150000)
 while True:
+    cal.set_output(i)
+    i = i + 100
     print(cal.get_electrical_input())
 
