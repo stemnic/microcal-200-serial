@@ -28,6 +28,8 @@ class Microcal:
         self._serial_interface.flush()
         self._serial_interface.flushInput()
         self._serial_interface.flushOutput()
+        if len(parameters) != 4:
+            raise Exception("Parameter needs to have 4 arguments.")
         if self._debug:
             print(f"TX:{self._id_number}")
         self._serial_interface.write(self._id_number.to_bytes(1, byteorder='big'))
