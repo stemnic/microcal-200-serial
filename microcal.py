@@ -21,7 +21,7 @@ class Microcal:
         self._device_path = serial_device
         self._id_number = id_number
         self._baud = baud
-        self._serial_interface = serial.Serial(self._device_path, bytesize=8, baudrate=baud, timeout=0.25)  # open serial port
+        self._serial_interface = serial.Serial(self._device_path, bytesize=8, baudrate=baud, timeout=3)  # open serial port
         self._debug = debug
 
     def _do_command(self, command: int, parameters: list) -> list:
@@ -122,13 +122,13 @@ class Microcal:
 
 
 
-cal = Microcal("/dev/tty.usbserial-140", 1, 9600, debug=False)
-print(cal.get_battery_voltage())
-print(cal.get_date())
-i = 0
+#cal = Microcal("/dev/ttyUSB0", 1, 9600, debug=False)
+#print(cal.get_battery_voltage())
+#print(cal.get_date())
+#i = 0
 #cal.set_output(150000)
-while True:
-    cal.set_output(i)
-    i = i + 100
-    print(cal.get_electrical_input())
+#while True:
+#    cal.set_output(i)
+#    i = i + 100
+#    print(cal.get_electrical_input())
 
